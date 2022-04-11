@@ -1,0 +1,36 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RestaurantRaterMVC.Data;
+using RestaurantRaterMVC.Models.Restaurant;
+
+namespace RestaurantRaterMVC.Controllers
+{
+    public class RestaurantController : Controller
+    {
+        private RestaurantDbContext _context;
+        public RestaurantController(RestaurantDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            List<RestaurantListItem> restaurants = await _context.Restaurants
+            .Include(r => r.Ratings)
+            .Select(r => new RestaurantListItem()
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Score = r.Score,
+            }).ToListAsync();
+
+            return View(restaurants);
+        }
+    }
+}
